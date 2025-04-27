@@ -26,11 +26,13 @@ pip install fitparse pandas folium branca
 
 ## 🚩 Exporting a FIT from Strava
 
+*Note: this does not work on mobile.*
+
 1. Log in to Strava on the web and open the activity you want.  
 2. Click the **⋯** menu (upper right) and select **Export Original**.  
 3. The `.fit` file will download—use this as your `input.fit`.
 
-*Note: this does not work on mobile.*
+Or follow the instructions here: https://support.strava.com/hc/en-us/articles/216918437-Exporting-your-Data-and-Bulk-Export
 
 ## 🚀 Usage
 
