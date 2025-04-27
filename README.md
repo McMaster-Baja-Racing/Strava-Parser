@@ -12,7 +12,7 @@ A simple Python utility to:
 ---
 
 ## 🚀 Usage
-1. Download `launcher.exe`
+1. Download `launcher.exe` from the latest releases.
 2. Double click `launcher.exe` to run the application.
 3. It will prompt you to select a `*.fit` file, see below to extract from Strava.
 4. It will then request you select a directory to save the files in. Inside this directory it will create a folder to store the data.
