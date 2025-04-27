@@ -19,8 +19,8 @@ A simple Python utility to:
 ## 📥 Installation
 
 ```bash
-git clone https://github.com/McMaster-Baja-Racing/Strava-Parser
-cd Strava-Parser
+git clone <your-repo-url>
+cd <repo-folder>
 pip install fitparse pandas folium branca
 ```
 
@@ -55,10 +55,48 @@ python main.py my_ride.fit ride_data.csv ride_street.html ride_satellite.html
 - **street_map.html** Your track over OpenStreetMap  
 - **satellite_map.html** Your track over Esri satellite imagery  
 
-Open either HTML file in a browser to explore your ride, colored by speed. 
+Open either HTML file in a browser to explore your ride, colored by speed.
+
+## 📦 Packaging as a Standalone Application
+
+To let teammates run this tool by double‑clicking an executable, you can bundle `main.py` and `launcher.py` into a single `.exe` using PyInstaller:
+
+1. **Install PyInstaller** in your Python environment:
+   ```bash
+   pip install pyinstaller
+   ```
+
+2. **Bundle** the launcher script into one executable:
+   ```bash
+   # From the project root, where main.py and launcher.py live
+   python -m PyInstaller --onefile --windowed launcher.py
+   ```
+
+   - `--onefile` packs all dependencies into a single `.exe`  
+   - `--windowed` suppresses the console window (GUI only)  
+   - The generated executable will be in `dist/launcher.exe`.
+
+3. **Include map‑tile definitions** (providers.json) so Folium can resolve custom layers. If you encounter `xyzservices` errors, re-run with:
+   ```bash
+   python -m PyInstaller \
+     --onefile --windowed launcher.py \
+     --add-data "<path_to_python_site_packages>/xyzservices/data;xyzservices/data"
+   ```
+
+4. **Distribute** the `launcher.exe` file. Teammates can double‑click it, select a FIT file, choose an output folder, and instantly see the satellite map.
+
+---
+
+## 🔄 Workflow
+
+1. **Parse** — read FIT “record” messages  
+2. **Convert** — semicircles → decimal degrees; m/s → km/h  
+3. **Export** — write `timestamp,lat,lon,speed_kmh` to CSV  
+4. **Visualize** — draw line segments on two maps with a speed‑based legend  
 
 ---
 
 ## 📝 License
 
-MIT © 2025  
+MIT © 2025
+
