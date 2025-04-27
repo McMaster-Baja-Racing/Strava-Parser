@@ -39,13 +39,11 @@ def write_csv(df, csv_path):
 
 # --- Build a map with clickable segments showing speed ---
 def build_map(df, html_path, tiles, name):
-    # center map
     center = (df.lat.mean(), df.lon.mean())
     m = folium.Map(location=center, zoom_start=13, tiles=None)
-    # Add tile layer with proper attribution
     folium.TileLayer(tiles=tiles, name=name, attr=name).add_to(m)
 
-    # create color scale blue→red based on km/h
+    # color scale
     vmin, vmax = df.speed_kmh.min(), df.speed_kmh.max()
     cmap = LinearColormap(
         ['blue', 'red'],
@@ -55,7 +53,7 @@ def build_map(df, html_path, tiles, name):
     )
     cmap.add_to(m)
 
-    # draw each segment as a clickable line with tooltip/popup
+    # clickable segments
     for i in range(len(df) - 1):
         start = df.iloc[i]
         end = df.iloc[i + 1]
@@ -73,35 +71,32 @@ def build_map(df, html_path, tiles, name):
     m.save(html_path)
     print(f"✔ {name} map written to {html_path}")
 
-# --- Main entry point ---
-def main():
-    if len(sys.argv) != 5:
-        print(f"Usage: {sys.argv[0]} input.fit output.csv street_map.html satellite_map.html")
-        sys.exit(1)
-
-    fit_in, csv_out, street_html, sat_html = sys.argv[1:]
+# --- Primary processing function ---
+def process(fit_in, csv_out, street_html, sat_html):
     df = parse_fit(fit_in)
     if df.empty:
         print("⚠️ No valid GPS records found.")
         sys.exit(1)
-
     write_csv(df, csv_out)
-
-    # generate street view map (OpenStreetMap)
     build_map(
         df,
         street_html,
         tiles='OpenStreetMap',
         name='OpenStreetMap'
     )
-
-    # generate satellite view map (Esri World Imagery)
     build_map(
         df,
         sat_html,
         tiles='https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
         name='Esri World Imagery'
     )
+
+# --- CLI entrypoint ---
+def main():
+    if len(sys.argv) != 5:
+        print(f"Usage: {sys.argv[0]} input.fit output.csv street_map.html satellite_map.html")
+        sys.exit(1)
+    process(*sys.argv[1:])
 
 if __name__ == '__main__':
     main()

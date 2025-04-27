@@ -19,8 +19,8 @@ A simple Python utility to:
 ## 📥 Installation
 
 ```bash
-git clone <your-repo-url>
-cd <repo-folder>
+git clone https://github.com/McMaster-Baja-Racing/Strava-Parser
+cd Strava-Parser
 pip install fitparse pandas folium branca
 ```
 
@@ -30,7 +30,7 @@ pip install fitparse pandas folium branca
 2. Click the **⋯** menu (upper right) and select **Export Original**.  
 3. The `.fit` file will download—use this as your `input.fit`.
 
-*Note this does not work on mobile.*
+*Note: this does not work on mobile.*
 
 ## 🚀 Usage
 
