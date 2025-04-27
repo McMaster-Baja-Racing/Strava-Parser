@@ -5,7 +5,7 @@ import pandas as pd
 import folium
 from branca.colormap import LinearColormap
 
-# --- Parse FIT and convert semicircles → decimal degrees ---
+# --- Parse FIT and convert semicircles → decimal degrees, compute speed in km/h ---
 def parse_fit(fit_path):
     fit = FitFile(fit_path)
     rows = []
@@ -14,16 +14,18 @@ def parse_fit(fit_path):
         ts        = data.get('timestamp')
         raw_lat   = data.get('position_lat')
         raw_lon   = data.get('position_long')
-        speed_m_s = data.get('speed')
-        if None not in (ts, raw_lat, raw_lon, speed_m_s):
-            # semicircles → degrees:
+        speed_ms  = data.get('speed')
+        if None not in (ts, raw_lat, raw_lon, speed_ms):
+            # semicircles → degrees
             lat = raw_lat * (180.0 / 2**31)
             lon = raw_lon * (180.0 / 2**31)
+            # convert speed from m/s to km/h
+            speed_kmh = speed_ms * 3.6
             rows.append({
-                'timestamp':   ts,
-                'lat':         lat,
-                'lon':         lon,
-                'speed_m_s':   speed_m_s
+                'timestamp': ts,
+                'lat':       lat,
+                'lon':       lon,
+                'speed_kmh': speed_kmh
             })
     return pd.DataFrame(rows)
 
@@ -32,41 +34,46 @@ def write_csv(df, csv_path):
     out = df.copy()
     out['timestamp'] = out['timestamp'].dt.strftime('%Y-%m-%dT%H:%M:%S')
     out.to_csv(csv_path, index=False,
-               columns=['timestamp','lat','lon','speed_m_s'])
+               columns=['timestamp','lat','lon','speed_kmh'])
     print(f"✔ CSV written to {csv_path}")
 
-# --- Build a map given a tiles setup and output path ---
+# --- Build a map with clickable segments showing speed ---
 def build_map(df, html_path, tiles, name):
+    # center map
     center = (df.lat.mean(), df.lon.mean())
-    # start with no default tiles, so we can add ours:
     m = folium.Map(location=center, zoom_start=13, tiles=None)
+    # Add tile layer with proper attribution
     folium.TileLayer(tiles=tiles, name=name, attr=name).add_to(m)
 
-    # color scale blue→red
-    vmin, vmax = df.speed_m_s.min(), df.speed_m_s.max()
+    # create color scale blue→red based on km/h
+    vmin, vmax = df.speed_kmh.min(), df.speed_kmh.max()
     cmap = LinearColormap(
-        ['blue','red'],
+        ['blue', 'red'],
         vmin=vmin,
         vmax=vmax,
-        caption='Speed (m/s)'
+        caption='Speed (km/h)'
     )
     cmap.add_to(m)
 
-    # draw segments
-    for i in range(len(df)-1):
-        s = df.iloc[i]; e = df.iloc[i+1]
+    # draw each segment as a clickable line with tooltip/popup
+    for i in range(len(df) - 1):
+        start = df.iloc[i]
+        end = df.iloc[i + 1]
+        speed = start.speed_kmh
         folium.PolyLine(
-            locations=[(s.lat, s.lon),(e.lat, e.lon)],
-            color=cmap(s.speed_m_s),
+            locations=[(start.lat, start.lon), (end.lat, end.lon)],
+            color=cmap(speed),
             weight=4,
             opacity=0.8,
+            tooltip=f"{speed:.1f} km/h",
+            popup=f"{speed:.1f} km/h"
         ).add_to(m)
 
-    # add layer control in case you want to toggle (though each map only has one)
     folium.LayerControl().add_to(m)
     m.save(html_path)
     print(f"✔ {name} map written to {html_path}")
 
+# --- Main entry point ---
 def main():
     if len(sys.argv) != 5:
         print(f"Usage: {sys.argv[0]} input.fit output.csv street_map.html satellite_map.html")
@@ -80,20 +87,20 @@ def main():
 
     write_csv(df, csv_out)
 
-    # Street view (OpenStreetMap)
+    # generate street view map (OpenStreetMap)
     build_map(
         df,
         street_html,
         tiles='OpenStreetMap',
-        name='Street View'
+        name='OpenStreetMap'
     )
 
-    # Satellite view (Esri World Imagery)
+    # generate satellite view map (Esri World Imagery)
     build_map(
         df,
         sat_html,
         tiles='https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-        name='Esri Satellite'
+        name='Esri World Imagery'
     )
 
 if __name__ == '__main__':
