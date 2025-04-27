@@ -11,6 +11,26 @@ A simple Python utility to:
 
 ---
 
+## 🚀 Usage
+1. Download `launcher.exe`
+2. Double click `launcher.exe` to run the application.
+3. It will prompt you to select a `*.fit` file, see below to extract from Strava.
+4. It will then request you select a directory to save the files in. Inside this directory it will create a folder to store the data.
+5. Finally, it will open a satellite map with your data!
+
+## 🚩 Exporting a FIT from Strava
+
+*Note: this does not work on mobile.*
+
+1. Log in to Strava on the web and open the activity you want.  
+2. Click the **⋯** menu (upper right) and select **Export Original**.  
+3. The `.fit` file will download—use this as your `input.fit`.
+
+Or follow the instructions here: https://support.strava.com/hc/en-us/articles/216918437-Exporting-your-Data-and-Bulk-Export
+
+--
+# Developper Guide
+
 ## ⚙️ Prerequisites
 
 - Python 3.7+  
@@ -23,16 +43,6 @@ git clone <your-repo-url>
 cd <repo-folder>
 pip install fitparse pandas folium branca
 ```
-
-## 🚩 Exporting a FIT from Strava
-
-*Note: this does not work on mobile.*
-
-1. Log in to Strava on the web and open the activity you want.  
-2. Click the **⋯** menu (upper right) and select **Export Original**.  
-3. The `.fit` file will download—use this as your `input.fit`.
-
-Or follow the instructions here: https://support.strava.com/hc/en-us/articles/216918437-Exporting-your-Data-and-Bulk-Export
 
 ## 🚀 Usage
 
