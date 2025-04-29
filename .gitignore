@@ -3,3 +3,4 @@
 .vscode
 *.spec
 temp.txt
+*.pyc

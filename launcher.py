@@ -1,5 +1,15 @@
 #!/usr/bin/env python3
 import os
+import sys
+
+# ─── WINDOWS TASKBAR ICON FIX ────────────────────────────────────────────────
+if sys.platform == "win32":
+    import ctypes
+    # Use a unique AppUserModelID for your application:
+    myappid = "ca.mcmasterbaja.stravaparser"
+    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+# ─────────────────────────────────────────────────────────────────────────────
+
 import webbrowser
 import tkinter as tk
 from tkinter import filedialog, messagebox
@@ -10,6 +20,31 @@ class FitProcessorGUI(tk.Tk):
         super().__init__()
         self.title("FIT → CSV & Map Generator")
         self.resizable(False, False)
+
+        # Robust icon loading (window + taskbar/dock)
+        if getattr(sys, 'frozen', False):
+            base_path = sys._MEIPASS
+        else:
+            base_path = os.path.dirname(__file__)
+
+        ico_path = os.path.join(base_path, "favicon.ico")
+        png_path = os.path.join(base_path, "favicon.png")
+
+        # 1) Try .ico for classic window icon
+        if os.path.exists(ico_path):
+            try:
+                self.iconbitmap(ico_path)
+            except Exception:
+                pass
+
+        # 2) Try .png for taskbar/dock & cross-platform icon
+        if os.path.exists(png_path):
+            try:
+                img = tk.PhotoImage(file=png_path)
+                self.iconphoto(True, img)
+                self._icon_img = img  # keep reference alive
+            except Exception:
+                pass
 
         self.fit_path = ""
         self.out_dir  = ""
@@ -84,7 +119,7 @@ class FitProcessorGUI(tk.Tk):
             messagebox.showwarning("Invalid Max Speed", "Enter a positive number for max speed.")
             return
 
-        # close the UI immediately
+        # Close the UI immediately
         self.destroy()
 
         # Prepare output subfolder
@@ -102,7 +137,7 @@ class FitProcessorGUI(tk.Tk):
             process(self.fit_path, csv_path, street_html, sat_html, max_spd)
             webbrowser.open(f"file://{os.path.abspath(sat_html)}")
         except Exception as e:
-            # Since the window is closed, pop up a standalone alert
+            # Standalone alert after window closed
             tk.Tk().withdraw()
             messagebox.showerror("Processing Error", str(e))
 

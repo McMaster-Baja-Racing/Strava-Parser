@@ -4,6 +4,7 @@ from fitparse import FitFile
 import pandas as pd
 import folium
 from branca.colormap import LinearColormap
+from branca.element import Element  # for injecting custom CSS
 
 def parse_fit(fit_path):
     fit = FitFile(fit_path)
@@ -38,14 +39,11 @@ def build_map(df, html_path, tiles, name, max_speed):
     m = folium.Map(location=center, zoom_start=13, tiles=None)
     folium.TileLayer(tiles=tiles, name=name, attr=name).add_to(m)
 
-    # limit to speeds in [0, max_speed], then derive vmin/vmax
+    # compute vmin/vmax for colormap
     valid = df.speed_kmh[(df.speed_kmh >= 0) & (df.speed_kmh <= max_speed)]
-    if not valid.empty:
-        vmin, vmax = valid.min(), valid.max()
-    else:
-        # fallback if no data in range
-        vmin, vmax = 0, max_speed
+    vmin, vmax = (valid.min(), valid.max()) if not valid.empty else (0, max_speed)
 
+    # create and add colormap
     cmap = LinearColormap(
         ['blue', 'red'],
         vmin=vmin,
@@ -54,15 +52,45 @@ def build_map(df, html_path, tiles, name, max_speed):
     )
     cmap.add_to(m)
 
+    css = """
+    <style>
+    /* outline every text element in the legend SVG */
+    .legend svg text {
+        stroke: white !important;
+        stroke-width: 2px !important;
+        /* paint the outline behind the fill */
+        paint-order: stroke fill !important;
+    }
+    </style>
+    """
+    m.get_root().header.add_child(Element(css))
+
+    # draw line segments with outlined text in tooltips & popups
     for i in range(len(df) - 1):
         a, b = df.iloc[i], df.iloc[i+1]
+        label = f"{a.speed_kmh:.1f} km/h"
+        tooltip = folium.Tooltip(
+            label,
+            style=(
+                "color: black;"
+                "text-shadow: -1px -1px 0 white, 1px -1px 0 white, "
+                "-1px 1px 0 white, 1px 1px 0 white;"
+            )
+        )
+        popup = folium.Popup(
+            f'<span style="color: black;'
+            'text-shadow: -1px -1px 0 white, 1px -1px 0 white, '
+            '-1px 1px 0 white, 1px 1px 0 white;">'
+            f'{label}</span>',
+            max_width=200
+        )
         folium.PolyLine(
             locations=[(a.lat, a.lon), (b.lat, b.lon)],
             color=cmap(a.speed_kmh),
             weight=4,
             opacity=0.8,
-            tooltip=f"{a.speed_kmh:.1f} km/h",
-            popup=f"{a.speed_kmh:.1f} km/h"
+            tooltip=tooltip,
+            popup=popup
         ).add_to(m)
 
     folium.LayerControl().add_to(m)
