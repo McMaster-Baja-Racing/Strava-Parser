@@ -4,10 +4,11 @@ A simple Python utility to:
 
 - Parse a `.fit` file and extract **timestamp**, **latitude**, **longitude**, and **speed (km/h)**  
 - Export the data to a CSV  
-- Generate two interactive HTML maps:
+- Generate an interactive HTML map with two layers:
   - **Street View** (OpenStreetMap)  
   - **Satellite View** (Esri World Imagery)  
   with your route colored blue→red by speed.
+- Multiple routes are differentiated by highlighting accompanied by a legend and the ability to toggle them.
 
 ![image](https://github.com/user-attachments/assets/58dad959-d37a-41e4-9733-a553005244b7)
 
@@ -16,8 +17,8 @@ A simple Python utility to:
 ---
 
 ## 🚀 Usage
-1. Download `launcher.exe` from the latest releases.
-2. Double click `launcher.exe` to run the application.
+1. Download `MBR-Strava-Parser.exe` from the latest releases.
+2. Double click `MBR-Strava-Parser.exe` to run the application.
 3. It will prompt you to select a `*.fit` file, see below to extract from Strava.
 4. It will then request you select a directory to save the files in. Inside this directory it will create a folder to store the data.
 5. Finally, it will open a satellite map with your data!
@@ -27,8 +28,8 @@ A simple Python utility to:
 *Note: this does not work on mobile.*
 
 1. Log in to Strava on the web and open the activity you want.  
-2. Click the **⋯** menu (upper right) and select **Export Original**.  
-3. The `.fit` file will download—use this as your `input.fit`.
+2. Click the **⋯** menu (middle left) and select **Export Original**.  
+3. The `.fit` file will download — use this as your `input.fit`.
 
 Or follow the instructions here: https://support.strava.com/hc/en-us/articles/216918437-Exporting-your-Data-and-Bulk-Export
 
@@ -66,8 +67,7 @@ python main.py my_ride.fit ride_data.csv ride_street.html ride_satellite.html
   timestamp,lat,lon,speed_kmh
   2025-04-13T19:08:42,43.712345,-79.416789,70.2
   ```  
-- **street_map.html** Your track over OpenStreetMap  
-- **satellite_map.html** Your track over Esri satellite imagery  
+- **map_view.html** Your track over OpenStreetMap  
 
 Open either HTML file in a browser to explore your ride, colored by speed.
 
