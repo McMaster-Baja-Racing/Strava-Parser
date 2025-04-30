@@ -9,9 +9,7 @@ A simple Python utility to:
   - **Satellite View** (Esri World Imagery)  
   with your route colored blue→red by speed.
 
-![image](https://github.com/user-attachments/assets/58dad959-d37a-41e4-9733-a553005244b7)
-
-
+<img width="1128" alt="image" src="https://github.com/user-attachments/assets/df9ea7a1-c304-4ecc-8f34-92cf05870a09" />
 
 ---
 
