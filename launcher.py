@@ -1,11 +1,10 @@
-# launcher.py
 #!/usr/bin/env python3
 import os
 import sys
 import webbrowser
 import tkinter as tk
 from tkinter import filedialog, messagebox
-from main import process, process_multiple  # now supports multi-file
+from main import process, process_multiple
 
 class FitProcessorGUI(tk.Tk):
     def __init__(self):
@@ -88,24 +87,23 @@ class FitProcessorGUI(tk.Tk):
 
         self.destroy()
         base_names = [os.path.splitext(os.path.basename(p))[0] for p in self.fit_paths]
-        # Use output directory directly for combined outputs
         os.makedirs(self.out_dir, exist_ok=True)
-        street_html = os.path.join(self.out_dir, "combined_street.html")
-        sat_html    = os.path.join(self.out_dir, "combined_satellite.html")
 
         try:
             if len(self.fit_paths) > 1:
-                process_multiple(self.fit_paths, self.out_dir, street_html, sat_html, max_spd)
-                webbrowser.open(f"file://{os.path.abspath(sat_html)}")
+                out_sub = os.path.join(self.out_dir, base_names[0] + "-and-more")
+                os.makedirs(out_sub, exist_ok=True)
+                html_path    = os.path.join(out_sub, f"{base_names[0]}_and_more_map_view.html")
+                process_multiple(self.fit_paths, out_sub, html_path, max_spd)
+                webbrowser.open(f"file://{os.path.abspath(html_path)}")
             else:
                 single = self.fit_paths[0]
                 out_sub = os.path.join(self.out_dir, base_names[0])
                 os.makedirs(out_sub, exist_ok=True)
                 csv_path    = os.path.join(out_sub, f"{base_names[0]}_data.csv")
-                street_single = os.path.join(out_sub, f"{base_names[0]}_street.html")
-                sat_single    = os.path.join(out_sub, f"{base_names[0]}_satellite.html")
-                process(single, csv_path, street_single, sat_single, max_spd)
-                webbrowser.open(f"file://{os.path.abspath(sat_single)}")
+                html_path    = os.path.join(out_sub, f"{base_names[0]}_map_view.html")
+                process(single, csv_path, html_path, max_spd)
+                webbrowser.open(f"file://{os.path.abspath(html_path)}")
         except Exception as e:
             tk.Tk().withdraw()
             messagebox.showerror("Processing Error", str(e))
