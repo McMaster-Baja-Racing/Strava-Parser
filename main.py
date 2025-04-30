@@ -104,8 +104,18 @@ def build_map_multi(series_list, html_path, *_args, max_speed=100.0):
     """
     m.get_root().header.add_child(Element(css))
 
-    outline_colors = ['black', 'yellow', 'lime', 'magenta', 'cyan']
-    layer_emojis = ['⚫', '🟡', '🟢', '🟣', '🔵']
+    layer_emojis = [
+        '⚪',
+        '🟢',
+        '🟠',
+        '🔵',
+        '🟣',
+        '🟡',
+        '🟤',
+        '🔴',
+        '⚫'
+    ]
+    outline_colors = ['white', 'lime', 'orange', 'cyan', 'magenta', 'yellow', 'brown', 'red', 'black']
     outline_weight, inner_weight = 10, 6
     
     for idx, (name, df) in enumerate(series_list):
